@@ -1,0 +1,43 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+  tasks:
+  - name: Install Packages
+    apt:
+      name: "{{ item }}"
+      state: present
+    loop:
+    - doas
+    - nala
+    - vim
+  - name: Ensure ansible user exists
+    user:
+      name: ansible
+      state: present
+      comment: Ansible Automation User
+  - name: Add authorized_keys file to user set
+    authorized_key:
+      user: "{{ item }}"
+      key: https://github.com/ModestTG/authorized_keys/raw/master/authorized_keys
+      state: present
+    loop:
+      - ansible
+      - eweishaar
+  - name: configure SSHD
+    template:
+      src: ../templates/sshd_config.j2
+      dest: /etc/ssh/sshd_config
+      owner: root
+      group: root
+      mode: '0644'
+  - name: Add doas configuration
+    template:
+      src: ../templates/doas.conf.j2
+      dest: /etc/doas.conf
+      owner: root
+      group: root
+      mode: '0644'
+  - name: Restart SSHD
+    service:
+      name: sshd
+      state: restarted

@@ -1,0 +1,45 @@
+---
+- name: Docker Gather Facts
+  hosts: docker
+  gather_facts: no
+  tasks:
+    - name: Get Docker acme.json hash
+      stat:
+        checksum_algorithm: md5
+        get_attributes: no
+        path: /home/docker/container_data/traefik/acme.json
+      register: statdocker
+- name: Mail Gather Facts
+  hosts: mail
+  gather_facts: no
+  tasks:
+    - name: Get Mail acme.json hash
+      stat:
+        checksum_algorithm: md5
+        get_attributes: no
+        path: /home/eweishaar/docker-mailserver/docker-data/dms/certs/acme.json
+      register: statmail
+- name: Fetch acme.json
+  hosts: docker
+  gather_facts: no
+  tasks:
+    - name: Fetch acme.json from Docker if Changed
+      fetch:
+        src: /home/docker/container_data/traefik/acme.json
+        dest: /mnt/automation/ansible/files/acme.json
+        flat: yes
+      when: hostvars['docker']['statdocker']['stat']['checksum'] != hostvars['mail']['statmail']['stat']['checksum']
+- name: Copy acme.json
+  hosts: mail
+  gather_facts: no
+  remote_user: ansible
+  become: yes
+  tasks:
+  - name: Copy acme.json to Mail if Changed
+    copy:
+      src: /mnt/automation/ansible/files/acme.json
+      dest: /home/eweishaar/docker-mailserver/docker-data/dms/certs/acme.json
+      owner: eweishaar
+      group: eweishaar
+      mode: 0644
+    when: hostvars['docker']['statdocker']['stat']['checksum'] != hostvars['mail']['statmail']['stat']['checksum']

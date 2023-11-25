@@ -1,0 +1,34 @@
+- name: Configure 10G Network Interface
+  hosts: ubuntu_2004
+  vars:
+    assigned_ip: "{{ ip }}"
+    iface: "{{ iface }}"
+  tasks:
+    - name: Copy Netplan Config
+      become: yes
+      copy:
+        owner: root
+        group: root
+        src: /mnt/automation/ansible/configs/01-10GNetwork.yaml
+        dest: /etc/netplan/
+    - name: Configure Interface
+      become: yes
+      lineinfile:
+        path: /etc/netplan/01-10GNetwork.yaml
+        regexp: 'interface_CHANGE_ME'
+        line: "    {{ iface }}:"
+    - name: Configure IP
+      become: yes
+      lineinfile:
+        path: /etc/netplan/01-10GNetwork.yaml
+        regexp: 'IP_CHANGE_ME'
+        line: "      - {{ assigned_ip }}/24"
+    - name: Cleanup Line Endings
+      become: yes
+      command: dos2unix /etc/netplan/01-10GNetwork.yaml
+    - name: Apply Changes
+      become: yes
+      command: netplan apply
+    - name: Test Connection
+      net_ping:
+        dest: 10.0.10.1

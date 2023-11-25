@@ -1,0 +1,6 @@
+---
+# vars file for eweishaar.telegraf
+influxdb_host: docker.lan.ewhomelab.com
+influxdb_username: eweishaar
+influxdb_password:
+influxdb_port: 8086

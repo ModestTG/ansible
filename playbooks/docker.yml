@@ -1,0 +1,67 @@
+- name: Setup Docker
+  hosts: linode
+  tasks:
+    - name: Install Dependencies
+      become: yes
+      apt:
+        update_cache: yes
+        state: present
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - python3-pip
+          - gnupg-agent
+          - software-properties-common
+    - name: Import Repository GPG key
+      become: yes
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add Docker Repository
+      become: yes
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    - name: Install Docker
+      become: yes
+      apt:
+        update_cache: yes
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+    - name: Check Docker Service
+      become: yes
+      service:
+        name: docker
+        state: started
+    - name: Add Docker to sudo Group
+      become: yes
+      user:
+        name: eweishaar
+        append: yes
+        groups:
+          - docker
+    - name: Install docker Python Package
+      pip:
+        name: docker
+        state: present
+    - name: Verify Installation
+      register: docker_output
+      community.docker.docker_container:
+        name: hello-world
+        image: hello-world
+        container_default_behavior: compatibility
+        detach: no
+    - name: See Output
+      debug:
+        msg: "{{ docker_output.container.Output }}"
+    - name: Remove Container
+      community.docker.docker_container:
+        name: hello-world
+        state: absent
+        container_default_behavior: compatibility
+    - name: Remove docker Python Package
+      pip:
+        name: docker
+        state: absent

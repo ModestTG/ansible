@@ -1,0 +1,10 @@
+---
+
+# Install packages: vim, neofetch
+# Remove unused packages: lighthttpd, mini-httpd, nano
+# Set Hostname
+# Set motd
+# Configure SSH
+
+- import_tasks: hosts_tasks.yml
+  when: host-tasks-import

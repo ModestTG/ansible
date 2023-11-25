@@ -1,0 +1,21 @@
+---
+# tasks file for eweishaar.telegraf
+
+# InfluxDB Ansible module does not work for v2 of InfluxDB. InfluxDB buckets must be set up prior.
+# - name: Import InfluxDB variables
+#   include_vars: influxdb.yml
+
+# - include_tasks: influx-tasks.yml
+- name: Install dependencies
+  apt:
+    name:
+      - telegraf
+    state: present
+- name: Create InfluxDB Bucket
+  community.general.influxdb_database:
+    
+- name: Setup config file
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    

@@ -1,0 +1,6 @@
+---
+# vars file for eweishaar.init
+
+host-tasks-import: true
+hostname: jarvis
+main_username: eweishaar

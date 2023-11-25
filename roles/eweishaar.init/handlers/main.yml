@@ -1,0 +1,7 @@
+---
+# handlers file for eweishaar.ssh-server
+- name: Restart SSHD
+  become: yes
+  service:
+    name: sshd
+    state: restarted

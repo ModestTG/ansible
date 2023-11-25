@@ -1,0 +1,71 @@
+---
+
+- name: Create Users
+  become: true
+  user:
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    state: present
+  loop: "{{ eweishaar_linux_server_init_users }}"
+- name: Configure Ansible User
+  become: true
+  community.general.sudoers:
+    name: ansible-sudo-no-passwd
+    state: present
+    user: "{{ eweishaar_linux_server_init_users[1].username }}"
+    commands: ALL
+- name: Configure SSH - Backup Default
+  become: true
+  copy:
+    src: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config.default
+    owner: root
+    group: root
+    mode: '0644'
+    force: false
+- name: Configure SSH - Apply Template sshd
+  become: true
+  template:
+    src: templates/sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart SSHD
+- name: Configure SSH - authorized_keys
+  become: true
+  authorized_key:
+    user: "{{ item.username }}"
+    state: present
+    key: https://github.com/ModestTG/authorized_keys/raw/master/authorized_keys
+  loop: "{{ eweishaar_linux_server_init_users }}"
+- name: Configure MOTD - Get Existing Files
+  find:
+    paths: /etc/update-motd.d
+  register: motd_files
+- name: Configure MOTD - Remove Execute Permissions
+  become: true
+  file:
+    path: "{{ item.path }}"
+    mode: '0644'
+  loop: "{{ motd_files.files }}"
+- name: Configure MOTD - Add Template MOTD
+  become: true
+  template:
+    src: templates/motd.j2
+    dest: /etc/update-motd.d/00-neofetch
+    owner: root
+    group: root
+    mode: '0755'
+- name: Configure Timezone - America/Chicago
+  become: true
+  community.general.timezone:
+    name: America/Chicago
+- name: Configure NTP - Apply Template ntp.conf
+  template:
+    src: templates/ntp.conf.j2
+    dest: /etc/ntp.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart NTP

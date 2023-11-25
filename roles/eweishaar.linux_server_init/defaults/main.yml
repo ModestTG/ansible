@@ -1,0 +1,10 @@
+---
+# defaults file for eweishaar-linux-server-init
+
+eweishaar_linux_server_init_users: 
+  - username: eweishaar
+    password: "$6$ZLRe3qGI$MCNkQT5OzCTFxA1YDwvXqXdZtJmpdAeIN1klz.Qb1ronpLJmTaLyKPu8wO9PTZmTqB244O6Oou2ckdgh9ska20" # mkpasswd --method=sha-512 <password>
+  - username: ansible # passwordless sudo user
+    password: "!"
+
+eweishaar_linux_server_init_ssh_port: 22

@@ -1,0 +1,21 @@
+- name: Configure SSH
+  hosts: docker
+  tasks:
+    - name: Copy authorized_keys
+      copy:
+        mode: 0644
+        src: /mnt/automation/ansible/authorized_keys/authorized_keys
+        dest: /home/{{ ansible_user_id }}/.ssh/
+    - name: Copy sshd_config
+      become: yes
+      copy:
+        backup: yes
+        owner: root
+        group: root
+        src: /mnt/automation/ansible/authorized_keys/sshd_config
+        dest: /etc/ssh/sshd_config
+    - name: Restart sshd Service
+      become: yes
+      service:
+        name: sshd
+        state: restarted

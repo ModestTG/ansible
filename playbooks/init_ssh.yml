@@ -1,0 +1,23 @@
+---
+- hosts: "{{ host }}"
+  remote_user: ansible
+  tasks:
+  - name: Add authorized_keys file to user set
+    authorized_key:
+      user: "{{ item }}"
+      key: https://github.com/ModestTG/authorized_keys/raw/master/authorized_keys
+      state: present
+    loop:
+      - ansible
+      - eweishaar
+  - name: configure SSHD
+    template:
+      src: ../templates/sshd_config.j2
+      dest: /etc/ssh/sshd_config
+      owner: root
+      group: root
+      mode: '0644'
+  - name: Restart SSHD
+    service:
+      name: sshd
+      state: restarted

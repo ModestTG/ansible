@@ -1,0 +1,12 @@
+- name: Attach NAS Storage - container_data
+  hosts: ubuntu_2004_docker
+  tasks:
+    - name: Mount container_data
+      become: yes
+      mount:
+        src: 10.0.10.1:/mnt/AuxPool/container_data
+        path: /mnt/container_data
+        opts: defaults
+        state: mounted
+        fstype: nfs
+    - name:

@@ -1,0 +1,12 @@
+---
+# handlers file for eweishaar-linux-server-init
+- name: Restart SSHD
+  become: true
+  service:
+    name: sshd
+    state: restarted
+- name: Restart NTP
+  become: true
+  service:
+    name: ntp
+    state: restarted

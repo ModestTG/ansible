@@ -1,0 +1,8 @@
+---
+- name: Update hosts
+  hosts: all
+  become: yes
+  become_user: ansible
+  tasks:
+    apt:
+      - name: Update

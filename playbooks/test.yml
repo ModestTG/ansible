@@ -1,0 +1,8 @@
+- hosts: testhost
+  tasks:
+  - name: Register Packages
+    package_facts:
+      manager: auto
+  - name: debug
+    debug:
+      var: hostvars["10.0.0.183"]["ansible_facts"]["packages"]
